@@ -21,6 +21,8 @@ export function downloadSvg(icon: IconRecord, color: string, size: number) {
   const url = URL.createObjectURL(new Blob([svg], { type: "image/svg+xml" }));
   const link = document.createElement("a");
   link.href = url;
+  link.target = "_blank";
+  link.rel = "noopener noreferrer";
   link.download = `${icon.name}.svg`;
   document.body.append(link);
   link.click();
