@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
 import type { IconRecord } from "./registry";
+import { withStrokeWidth } from "./svg-options";
 const files = import.meta.glob("/public/icons/*.svg", {
   query: "?raw",
   import: "default",
@@ -12,12 +13,14 @@ export function IconArt({
   icon,
   size = 32,
   color = "currentColor",
+  strokeWidth,
 }: {
   icon: IconRecord;
   size?: number;
   color?: string;
+  strokeWidth?: number;
 }) {
-  const svg = getSvg(icon);
+  const svg = withStrokeWidth(getSvg(icon), strokeWidth);
   return (
     <span
       className="icon-art"

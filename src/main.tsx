@@ -2,6 +2,7 @@ import React from "react";
 import { createRoot, hydrateRoot } from "react-dom/client";
 import App from "./App";
 import "./styles.css";
+import "./explorer.css";
 const root = document.getElementById("root")!;
 const app = (
   <React.StrictMode>

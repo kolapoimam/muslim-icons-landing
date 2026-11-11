@@ -1,0 +1,548 @@
+/* Explorer controls are grouped above the artwork, with one consistent surface. */
+.explorer {
+  --toolbar: #283b31;
+  --toolbar-field: #35473d;
+  padding-bottom: 10px;
+}
+.explorer-heading {
+  align-items: center;
+  margin-bottom: 22px;
+}
+.explorer-heading h2 {
+  margin-top: 0;
+}
+.library-format {
+  font:
+    10px ui-monospace,
+    SFMono-Regular,
+    monospace;
+  color: var(--muted);
+  letter-spacing: 0.3px;
+}
+.explorer-toolbar {
+  position: sticky;
+  top: 94px;
+  z-index: 15;
+  display: grid;
+  grid-template-columns: 135px minmax(180px, 1fr) 170px 122px auto;
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid #1f3228;
+  border-radius: 9px;
+  background: var(--toolbar);
+  box-shadow: 0 4px 14px #24382b0a;
+}
+.weight-control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 42px;
+  min-width: 130px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: #fff;
+  color: var(--text);
+}
+.weight-control select {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  font-size: 12px;
+  background: transparent;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  padding: 8px 0;
+}
+.explorer-toolbar .weight-control {
+  height: 44px;
+  min-width: 0;
+  border-color: transparent;
+  background: #f7f8f2;
+}
+.explorer-toolbar select option {
+  color: #253b2d;
+  background: #fff;
+}
+.explorer-toolbar button:focus-visible,
+.explorer-toolbar input:focus-visible,
+.explorer-toolbar select:focus-visible {
+  outline: 2px solid #c1d7a8;
+  outline-offset: 3px;
+}
+.toolbar-search {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  height: 44px;
+  gap: 10px;
+  padding: 0 12px;
+  color: #dbe4d8;
+  border-radius: 5px;
+  background: var(--toolbar-field);
+}
+.toolbar-search:focus-within {
+  box-shadow: inset 0 0 0 1px #bbd1a2;
+}
+.toolbar-search input {
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  outline: 0;
+  border: 0;
+  color: #f9fbf5;
+  background: none;
+  font-size: 13px;
+}
+.toolbar-search input:focus-visible {
+  outline: 0;
+}
+.toolbar-search input::placeholder {
+  color: #d6dfd2;
+}
+.toolbar-search svg {
+  flex-shrink: 0;
+}
+.toolbar-search button {
+  height: 32px;
+  min-width: 28px;
+  color: #eef4e8;
+  font-size: 24px;
+}
+.toolbar-search kbd {
+  font:
+    9px ui-monospace,
+    SFMono-Regular,
+    monospace;
+  white-space: nowrap;
+  color: #bccbb5;
+}
+.toolbar-size {
+  height: 44px;
+  background: var(--toolbar-field);
+  padding: 0 13px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  border-radius: 5px;
+  color: #eef3e9;
+}
+.toolbar-size output {
+  display: inline-flex;
+  font:
+    12px ui-monospace,
+    SFMono-Regular,
+    monospace;
+  white-space: nowrap;
+  gap: 2px;
+}
+.toolbar-size output span {
+  color: #c1d0b8;
+  font-size: 10px;
+}
+.toolbar-size input {
+  width: 100%;
+  min-width: 0;
+  accent-color: #dcebc7;
+  cursor: pointer;
+  height: 4px;
+}
+.toolbar-color {
+  height: 44px;
+  border: 1px solid #ffffff35;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  padding: 0 9px;
+  gap: 5px;
+}
+.toolbar-color label {
+  position: relative;
+  width: 19px;
+  height: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.toolbar-color label span {
+  width: 13px;
+  height: 13px;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  opacity: 0.8;
+}
+.toolbar-color input[type="color"] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+.toolbar-color input[type="text"] {
+  min-width: 0;
+  width: 100%;
+  padding: 5px 0;
+  background: transparent;
+  border: 0;
+  font:
+    11px ui-monospace,
+    SFMono-Regular,
+    monospace;
+  color: inherit;
+}
+.toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.toolbar-actions > button,
+.toolbar-canvas {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  min-width: 39px;
+  padding: 0 10px;
+  border-radius: 5px;
+  background: var(--toolbar-field);
+  color: #e0ead9;
+}
+.toolbar-actions > button:hover,
+.toolbar-canvas:hover {
+  background: #435a49;
+}
+.toolbar-actions > button[aria-pressed="true"] {
+  background: #d9e6ca;
+  color: #29442d;
+}
+.toolbar-actions > button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.toolbar-canvas {
+  position: relative;
+  gap: 5px;
+  padding: 0 9px;
+}
+.toolbar-canvas select {
+  border: 0;
+  background: none;
+  color: inherit;
+  width: 65px;
+  font-size: 10px;
+  padding: 5px 0;
+  cursor: pointer;
+}
+.toolbar-notice {
+  grid-column: 1/-1;
+  color: #ecf3e6;
+  font-size: 11px;
+  padding: 3px 3px 0;
+}
+.share-fallback {
+  grid-column: 1/-1;
+  color: #d7e2cf;
+  font-size: 11px;
+  padding: 4px;
+}
+.share-fallback label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.share-fallback input {
+  width: 100%;
+  border: 1px solid #5a7258;
+  padding: 9px;
+  border-radius: 4px;
+  background: #223229;
+  color: #f0f5e9;
+  font:
+    11px ui-monospace,
+    monospace;
+}
+.explorer-filter-row {
+  margin: 18px 0 0;
+}
+.explorer-filter-row .category-list {
+  flex-direction: row;
+  gap: 6px;
+  overflow-x: auto;
+  padding: 3px 1px 9px;
+  scrollbar-width: thin;
+}
+.explorer-filter-row .category {
+  flex-shrink: 0;
+  gap: 8px;
+  padding: 8px 11px;
+  min-height: 36px;
+  font-size: 11px;
+  border: 1px solid transparent;
+  color: #65725c;
+}
+.explorer-filter-row .category.active {
+  background: #e7eedf;
+  color: #315733;
+  border-color: #d5e0ca;
+}
+.explorer-filter-row .category:hover {
+  background: #edf2e6;
+}
+.explorer-filter-row .category-count {
+  font-size: 9px;
+  color: inherit;
+  opacity: 0.7;
+  margin-left: 0;
+}
+.explorer .results-meta {
+  min-height: 46px;
+  margin: 4px 0 8px;
+  align-items: center;
+  gap: 16px;
+  font-size: 11px;
+}
+.results-options {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.results-options label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #7b8771;
+  font-size: 10px;
+}
+.results-options select {
+  border: 0;
+  background: transparent;
+  color: #42563b;
+  font-size: 11px;
+  padding: 9px 0;
+  cursor: pointer;
+  max-width: 145px;
+}
+.explorer .icon-grid {
+  --cell-min: 142px;
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(max(var(--cell-min), calc(var(--preview-size, 32px) + 40px)), 1fr)
+  );
+  gap: 8px;
+  padding: 10px 4px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--canvas, #fff) !important;
+}
+.explorer .icon-grid.compact {
+  --cell-min: 105px;
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(max(var(--cell-min), calc(var(--preview-size, 32px) + 32px)), 1fr)
+  );
+}
+.explorer .icon-card {
+  min-height: max(126px, calc(var(--preview-size, 32px) + 70px));
+  background: transparent;
+  border-radius: 5px;
+  padding: 20px 8px;
+  gap: 18px;
+}
+.explorer .icon-grid.compact .icon-card {
+  min-height: max(110px, calc(var(--preview-size, 32px) + 64px));
+}
+.explorer .icon-card:hover {
+  background: transparent;
+  box-shadow: inset 0 0 0 1px #a7baa0;
+}
+.explorer .icon-name {
+  opacity: 1;
+  font-size: 10px;
+}
+.detail-content .weight-control {
+  min-width: 126px;
+  height: 38px;
+}
+.detail-content .weight-control select {
+  font-size: 11px;
+}
+.faq-item {
+  border-bottom: 1px solid var(--line);
+}
+.faq-item:first-child {
+  border-top: 1px solid var(--line);
+}
+.faq-question {
+  width: 100%;
+  padding: 19px 0;
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  text-align: left;
+  font-size: 13px;
+  line-height: 1.55;
+  font-weight: 550;
+}
+.faq-question > span {
+  color: var(--green);
+  font-size: 21px;
+  font-weight: 400;
+}
+.faq-question[aria-expanded="true"] > span {
+  transform: rotate(45deg);
+}
+.footer-credit {
+  flex-direction: row;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+  align-items: center;
+  gap: 6px;
+}
+.footer-credit a {
+  display: inline-flex;
+  align-items: center;
+}
+@media (max-width: 1040px) {
+  .explorer-toolbar {
+    grid-template-columns: 120px minmax(160px, 1fr) 145px 116px;
+  }
+  .toolbar-actions {
+    grid-column: 1/-1;
+    justify-content: flex-end;
+  }
+  .toolbar-actions > button {
+    min-width: 44px;
+  }
+  .toolbar-search kbd {
+    display: none;
+  }
+}
+@media (max-width: 800px) {
+  .explorer-toolbar {
+    top: 94px;
+    grid-template-columns: 120px minmax(160px, 1fr) 120px;
+  }
+  .toolbar-color {
+    grid-column: 1;
+  }
+  .toolbar-actions {
+    grid-column: 2/-1;
+    justify-content: flex-end;
+  }
+  .results-options {
+    gap: 12px;
+  }
+  .results-options label {
+    gap: 5px;
+  }
+  .results-options select {
+    max-width: 130px;
+  }
+}
+@media (max-width: 600px) {
+  .library-format {
+    display: none;
+  }
+  .explorer-heading h2 {
+    font-size: 25px;
+  }
+  .explorer-toolbar {
+    top: 73px;
+    grid-template-columns: 110px minmax(0, 1fr);
+    gap: 7px;
+    padding: 8px;
+  }
+  .toolbar-size {
+    grid-column: 1;
+    grid-row: 2;
+    padding: 0 10px;
+    gap: 8px;
+  }
+  .toolbar-color {
+    grid-column: 2;
+    grid-row: 2;
+  }
+  .toolbar-actions {
+    grid-column: 1/-1;
+    grid-row: 3;
+    display: grid;
+    grid-template-columns: 1fr repeat(4, 40px);
+    gap: 6px;
+  }
+  .toolbar-actions > button {
+    min-width: 0;
+    width: 40px;
+  }
+  .toolbar-canvas {
+    min-width: 0;
+    width: 100%;
+    padding: 0 6px;
+  }
+  .toolbar-canvas svg {
+    display: none;
+  }
+  .toolbar-canvas select {
+    width: 100%;
+    max-width: 72px;
+    font-size: 10px;
+  }
+  .explorer-filter-row {
+    margin-top: 12px;
+  }
+  .explorer-filter-row .category {
+    min-height: 42px;
+    font-size: 10px;
+  }
+  .explorer .results-meta {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 5px;
+    margin: 6px 0 12px;
+  }
+  .results-options {
+    width: 100%;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .results-options label {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+  }
+  .results-options select {
+    font-size: 10px;
+    max-width: 123px;
+  }
+  .explorer .icon-grid {
+    --cell-min: 96px;
+    gap: 4px;
+    padding: 6px;
+  }
+  .explorer .icon-grid.compact {
+    --cell-min: 76px;
+  }
+  .explorer .icon-card {
+    padding: 18px 5px;
+    gap: 16px;
+  }
+  .explorer .icon-name {
+    font-size: 10px;
+  }
+  .explorer .icon-grid.compact .icon-name {
+    font-size: 9px;
+  }
+  .detail-content .weight-control {
+    min-height: 42px;
+  }
+  .footer-credit {
+    flex-direction: row;
+    white-space: nowrap;
+  }
+}
