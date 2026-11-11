@@ -2,6 +2,8 @@ import { describe, it, expect, vi, afterEach } from "vitest";
 import { render, screen, fireEvent, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import App from "./App";
+import { readFileSync } from "node:fs";
+import published from "../vendor/muslim-icons/npm-exports.json";
 import {
   icons,
   categories,
@@ -13,10 +15,10 @@ import { getSvg } from "./IconArt";
 import { downloadSvg } from "./actions";
 afterEach(() => vi.restoreAllMocks());
 describe("registry and asset pipeline", () => {
-  it("covers all 88 unique planned names in 8 categories with original local SVGs", () => {
-    expect(icons).toHaveLength(88);
+  it("covers all 104 canonical library icons in 8 categories with original local SVGs", () => {
+    expect(icons).toHaveLength(104);
     expect(categories).toHaveLength(8);
-    expect(new Set(icons.map((x) => x.name)).size).toBe(88);
+    expect(new Set(icons.map((x) => x.name)).size).toBe(104);
     for (const icon of icons) {
       expect(getSvg(icon)).toContain("<svg");
       expect(getSvg(icon)).toContain("</svg>");
@@ -27,7 +29,20 @@ describe("registry and asset pipeline", () => {
       ).toBeNull();
       expect(icon.description).toBeTruthy();
     }
-    expect(icons.filter((x) => x.packageComponent)).toHaveLength(43);
+    expect(icons.filter((x) => x.packageComponent)).toHaveLength(104);
+  });
+  it("matches every canonical SVG and only offers npm imports for published exports", () => {
+    for (const icon of icons) {
+      const canonical = readFileSync(
+        `vendor/muslim-icons/packages/svg/icons/${icon.packageSlug}.svg`,
+        "utf8",
+      );
+      expect(getSvg(icon)).toBe(canonical);
+      expect(icon.availableInPackage).toBe(
+        published.icons.includes(icon.packageComponent),
+      );
+    }
+    expect(icons.filter((icon) => icon.availableInPackage)).toHaveLength(95);
   });
   it.each([
     ["tasbih", "prayer-beads"],
@@ -70,7 +85,7 @@ describe("explorer interactions", () => {
     );
     expect(
       screen.getByRole("status", { name: "Search results" }).textContent,
-    ).toContain("88 icons");
+    ).toContain("104 icons");
     await u.type(input, "tasbih");
     await u.click(screen.getByRole("button", { name: "Clear search" }));
     expect((input as HTMLInputElement).value).toBe("");
@@ -122,6 +137,18 @@ describe("explorer interactions", () => {
     expect(screen.queryByRole("dialog")).toBeNull();
     expect(document.activeElement).toBe(card);
   });
+  it("keeps newer source icons available as SVG without offering an unavailable npm import", async () => {
+    const u = userEvent.setup();
+    render(<App />);
+    await u.click(screen.getByRole("button", { name: "Preview Qiyam" }));
+    const dialog = screen.getByRole("dialog");
+    expect(within(dialog).getByText("SVG markup")).toBeTruthy();
+    expect(within(dialog).queryByText("React import")).toBeNull();
+    expect(dialog.textContent).not.toContain("Planned export");
+    expect(
+      within(dialog).getByRole("button", { name: /Download SVG/ }),
+    ).toBeTruthy();
+  });
   it("reports clipboard rejection with a manual copy fallback", async () => {
     const u = userEvent.setup();
     render(<App />);
@@ -131,7 +158,7 @@ describe("explorer interactions", () => {
     await u.click(screen.getAllByRole("button", { name: "Copy" })[0]);
     expect(
       screen.getByRole("status", { name: "Search results" }).textContent,
-    ).toContain("88 icons");
+    ).toContain("104 icons");
     expect(screen.getByText("Select and copy the code manually.")).toBeTruthy();
   });
   it("opens mobile navigation and supports the search shortcut and grid density control", async () => {

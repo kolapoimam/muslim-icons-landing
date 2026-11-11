@@ -1,6 +1,7 @@
 import { readFile, stat } from "node:fs/promises";
 import assert from "node:assert/strict";
 import sharp from "sharp";
+const registry = JSON.parse(await readFile("src/icons.json", "utf8"));
 const html = await readFile("dist/index.html", "utf8");
 assert.match(
   html,
@@ -9,8 +10,8 @@ assert.match(
 );
 assert.equal(
   (html.match(/class="icon-card"/g) || []).length,
-  88,
-  "All planned icons must be present in the initial HTML",
+  registry.length,
+  "All library icons must be present in the initial HTML",
 );
 assert.match(html, /Muslim and Islamic icons/);
 assert.match(html, /https:\/\/hdfund.org/);
@@ -38,8 +39,8 @@ for (const q of faq.mainEntity) {
   );
 }
 const catalog = JSON.parse(await readFile("dist/catalog.json", "utf8"));
-assert.equal(catalog.icons.length, 88);
-assert.equal(catalog.package.published, false);
+assert.equal(catalog.icons.length, registry.length);
+assert.equal(catalog.package.published, true);
 for (const file of [
   "robots.txt",
   "sitemap.xml",
@@ -54,7 +55,7 @@ for (const file of [
 ])
   assert.ok((await stat("dist/" + file)).size > 0, file);
 assert.match(await readFile("dist/llms.txt", "utf8"), /^# Muslim Icons/);
-assert.match(await readFile("dist/llms.txt", "utf8"), /not yet published/);
+assert.match(await readFile("dist/llms.txt", "utf8"), /published npm package/);
 const image = await sharp("dist/og-card.png").metadata();
 assert.equal(image.width, 1200);
 assert.equal(image.height, 630);
@@ -69,5 +70,5 @@ for (const [file, size] of [
   assert.equal(info.height, size);
 }
 console.log(
-  "Discovery checks passed: crawlable HTML, 88 icons, factual structured data, crawler files, metadata and share-image dimensions.",
+  "Discovery checks passed: crawlable HTML, canonical library icons, factual structured data, crawler files, metadata and share-image dimensions.",
 );

@@ -11,7 +11,7 @@ it("hydrates the crawler-readable homepage without recovery errors and preserves
   const onRecoverableError = vi.fn();
   let root!: Root;
   try {
-    expect(container.querySelectorAll(".icon-card")).toHaveLength(88);
+    expect(container.querySelectorAll(".icon-card")).toHaveLength(104);
     await act(async () => {
       root = hydrateRoot(container, <App />, { onRecoverableError });
     });

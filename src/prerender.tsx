@@ -49,7 +49,7 @@ export function discovery() {
         "@id": origin + "/#library",
         name: "Muslim Icons",
         description:
-          "Open-source Muslim and Islamic SVG icon library with React source components. Preview artwork; package not yet published to npm. Artwork rights remain subject to confirmation.",
+          "Open-source Muslim and Islamic SVG icon library with a published React package on npm. Artwork rights remain subject to the repository licensing notes.",
         codeRepository: config.repositoryUrl,
         programmingLanguage: ["TypeScript", "SVG"],
         runtimePlatform: "React",

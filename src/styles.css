@@ -603,11 +603,12 @@ section {
   gap: 13px;
   position: relative;
   background: var(--canvas, #fff);
-  transition: background 0.15s;
+  transition: box-shadow 0.15s;
   min-width: 0;
 }
 .icon-card:hover {
-  background: #edf2e8;
+  background: var(--canvas, #fff);
+  box-shadow: inset 0 0 0 1px #a8b9a1;
 }
 .icon-name {
   font-size: 9px;
@@ -1523,7 +1524,7 @@ footer {
   transition: background 0.15s;
 }
 .hero-icons > div:hover {
-  background: #e5ecdf;
+  background: transparent;
 }
 .footer-credit {
   display: flex;
@@ -1643,5 +1644,70 @@ footer {
     grid-template-columns: 1fr;
     gap: 24px;
     padding: 36px 0;
+  }
+}
+
+/* A single footer row, with the attribution between the brand and links. */
+.footer-top {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 28px;
+  align-items: center;
+}
+.footer-credit {
+  border: 0;
+  padding: 0;
+  flex-direction: column;
+  gap: 5px;
+  text-align: center;
+  font-size: 11px;
+}
+.footer-credit a {
+  gap: 6px;
+  white-space: nowrap;
+}
+.footer-top nav {
+  justify-content: flex-end;
+  gap: 16px;
+  max-width: none;
+}
+.package-cta {
+  margin: 4px 18px 18px 0;
+}
+@media (max-width: 900px) {
+  .footer-top {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+    gap: 22px;
+  }
+  .footer-credit {
+    grid-column: auto;
+    grid-row: auto;
+  }
+  .footer-top nav {
+    justify-self: center;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+}
+@media (max-width: 600px) {
+  .footer-top {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    gap: 22px;
+    text-align: center;
+  }
+  .footer-credit {
+    grid-row: auto;
+  }
+  .footer-top nav {
+    justify-self: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 18px;
+  }
+  .footer-credit a {
+    min-height: 30px;
   }
 }
