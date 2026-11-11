@@ -15,5 +15,5 @@ for (const icon of registry) {
   }
 }
 console.log(
-  `Synced ${registry.filter((i) => i.packageSlug).length} repository assets. Placeholders unchanged.`,
+  `Synced ${registry.filter((i) => i.packageSlug).length} repository assets. All artwork uses the pinned canonical source snapshot.`,
 );

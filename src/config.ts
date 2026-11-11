@@ -2,8 +2,11 @@ export const config = {
   repositoryUrl: "https://github.com/kolapoimam/muslim-icons",
   landingRepositoryUrl: "https://github.com/kolapoimam/muslim-icons-landing",
   packageName: "@muslim-icons/react",
-  sourceCommit: "c7c2217292a04a1d96e0f9ad41c65545b817cbba",
-  packagePublished: false,
+  sourceCommit: "0339a71a083f7115a6932cd268bed1616ede3ec2",
+  packagePublished: true,
+  packageVersion: "0.2.1",
+  sourceVersion: "0.3.1",
+  packageUrl: "https://www.npmjs.com/package/@muslim-icons/react",
 };
 
 export const site = {

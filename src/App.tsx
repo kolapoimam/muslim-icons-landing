@@ -8,7 +8,7 @@ import {
   jsxExample,
   type IconRecord,
 } from "./registry";
-import { IconArt } from "./IconArt";
+import { IconArt, getSvg } from "./IconArt";
 import { copyText, downloadSvg } from "./actions";
 import { config } from "./config";
 import { faqs } from "./content";
@@ -143,8 +143,8 @@ function Hero() {
           <a className="button primary" href="#icons">
             Explore the icons <span aria-hidden="true">↓</span>
           </a>
-          <a className="text-link" href={repo}>
-            View on GitHub <Arrow />
+          <a className="text-link npm-cta" href={config.packageUrl}>
+            Get the React package <Arrow />
           </a>
         </div>
         <div className="hero-meta">
@@ -327,11 +327,6 @@ function DetailPanel({
           </span>
         </div>
         <div className="detail-content">
-          <span className="pill">
-            {icon.status === "placeholder"
-              ? "Planned · placeholder"
-              : "Repository artwork · draft"}
-          </span>
           <h2 id="detail-title">{icon.displayName}</h2>
           <code className="technical-name">{icon.name}</code>
           <p>{icon.description}</p>
@@ -346,13 +341,14 @@ function DetailPanel({
                 <span key={t}>{t}</span>
               ))}
           </div>
-          <p className="integration-note">
-            {icon.packageComponent
-              ? "Matches the existing React export. Package not yet published."
-              : "Planned export — this component is not in the current package."}
-          </p>
-          <Code title="React import" code={importExample(icon)} />
-          <Code title="JSX usage" code={jsxExample(icon, size)} />
+          {icon.availableInPackage ? (
+            <>
+              <Code title="React import" code={importExample(icon)} />
+              <Code title="JSX usage" code={jsxExample(icon, size)} />
+            </>
+          ) : (
+            <Code title="SVG markup" code={getSvg(icon)} />
+          )}
           <button
             className="button primary download"
             onClick={() => {
@@ -363,13 +359,10 @@ function DetailPanel({
               }
             }}
           >
-            Download {icon.status === "placeholder" ? "placeholder" : "draft"}{" "}
-            SVG <span aria-hidden="true">↓</span>
+            Download SVG <span aria-hidden="true">↓</span>
           </button>
           {error && <p role="alert">{error}</p>}
           <p className="fine-print">
-            Preview artwork. Final designs are in development.
-            <br />
             Review the{" "}
             <a href={`${repo}/blob/main/packages/svg/LICENSE`}>
               artwork licensing notes
@@ -425,7 +418,7 @@ function Explorer() {
           </h2>
         </div>
         <span className="preview-badge">
-          <span className="status-dot" /> Collection preview
+          <span className="status-dot" /> The icon library
         </span>
       </div>
       <div className="search-box">
@@ -550,9 +543,6 @@ function Explorer() {
                   </span>
                   <IconArt icon={icon} size={size} />
                   <span className="icon-name">{icon.displayName}</span>
-                  <span className="art-status">
-                    {icon.status === "placeholder" ? "placeholder" : "draft"}
-                  </span>
                 </button>
               ))}
             </div>
@@ -570,12 +560,8 @@ function Explorer() {
             </div>
           )}
           <div className="collection-note">
-            <span aria-hidden="true">ⓘ</span> A work in progress, thoughtfully.
-            Includes{" "}
-            {icons.filter((i) => i.status === "repository-draft").length}{" "}
-            repository drafts and{" "}
-            {icons.filter((i) => i.status === "placeholder").length} temporary
-            placeholders. Final artwork is being refined.
+            <span aria-hidden="true">↳</span> {icons.length} original SVGs,
+            synced from the Muslim Icons source library.
           </div>
         </div>
       </div>
@@ -653,11 +639,9 @@ function BelowExplorer() {
             A familiar React API. Size, color and standard SVG props. No extra
             moving parts.
           </p>
-          <span className="pill">React package · preparing v0.1.0</span>
-          <p className="fine-print">
-            Installation is an upcoming example. The package has not been
-            published to npm.
-          </p>
+          <a className="button primary package-cta" href={config.packageUrl}>
+            View package on npm <Arrow />
+          </a>
           <a
             className="text-link"
             href={`${repo}/blob/main/packages/react/README.md`}
@@ -667,7 +651,7 @@ function BelowExplorer() {
         </div>
         <div className="integration-code">
           <Code
-            title="01 / Install after the first release"
+            title="01 / Install the React package"
             code={`npm install ${config.packageName}`}
           />
           <Code
@@ -731,9 +715,15 @@ function Footer() {
   return (
     <footer>
       <div className="footer-top">
-        <div>
+        <div className="footer-brand">
           <Brand />
           <p>Made for developers building for the Ummah.</p>
+        </div>
+        <div className="footer-credit">
+          <span>Powered by</span>
+          <a href="https://hdfund.org">
+            Human Development Fund <Arrow />
+          </a>
         </div>
         <nav aria-label="Footer">
           <a href="#icons">Icons</a>
@@ -743,24 +733,7 @@ function Footer() {
           </a>
           <a href="#contribute">Contribute</a>
           <a href={`${repo}/blob/main/LICENSE`}>Licence</a>
-          <a href="/llms.txt">AI reference</a>
         </nav>
-      </div>
-      <div className="footer-credit">
-        <span>Powered by</span>{" "}
-        <a href="https://hdfund.org">
-          Human Development Fund <Arrow />
-        </a>
-      </div>
-      <div className="footer-bottom">
-        <span>© {new Date().getFullYear()} Muslim Icons</span>
-        <span>Code: MIT · Artwork: review licensing notes</span>
-        <span>
-          One icon at a time.{" "}
-          <span className="tiny-mark" aria-hidden="true">
-            ✳
-          </span>
-        </span>
       </div>
     </footer>
   );
