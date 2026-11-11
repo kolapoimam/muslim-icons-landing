@@ -669,7 +669,7 @@ function Explorer() {
           Explore the icons.
           <span className="count-pill">{icons.length} icons</span>
         </h2>
-        <span className="library-format">24 × 24 / SVG + React</span>
+        <span className="library-format">24 × 24 viewBox</span>
       </div>
       <ExplorerToolbar
         settings={settings}
