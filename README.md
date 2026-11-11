@@ -55,3 +55,15 @@ Software: MIT, following the original project; see `LICENSE` and `vendor/muslim-
 Existing artwork: preserve `vendor/muslim-icons/packages/svg/LICENSE`. The source repository describes intended CC0 1.0 artwork licensing subject to contributor rights confirmation. New placeholder studies are preview assets pending final design and rights review. Do not treat the collection as cleared final artwork.
 
 Typography uses a self-hosted Inter variable font with `font-display: swap`; no third-party font service is required. Its SIL Open Font License is included at `public/fonts/inter-OFL.txt`.
+
+## Search and machine-readable discovery
+
+The build now pre-renders the same React homepage into `dist/index.html`, including the complete 88-icon grid and visible FAQ answers. The client hydrates it, so the initial content is readable without executing JavaScript. `scripts/verify-discovery.mjs` checks that metadata, structured data, inventory, crawler files and image dimensions are present on every build.
+
+`src/config.ts` defines the canonical production origin. If moving to a custom domain, update it and the absolute metadata URLs in `index.html`, then update the domain caption in the social-card generator. Keep one canonical origin; the sitemap deliberately contains the actual homepage, not fragment URLs or duplicate keyword pages.
+
+Generated endpoints: `/robots.txt`, `/sitemap.xml`, `/llms.txt` (standard spelling), `/llm.txt` (compatibility alias), `/llms-full.txt`, `/index.md`, and `/catalog.json`. These derive from the same icon registry and FAQ content used by the website. `llms.txt` is a project reference proposal, not a guaranteed ranking or AI citation mechanism. The structured data describes the project, source code, website and visible FAQ without invented ratings, downloads or release claims.
+
+Brand assets: `/favicon.svg`, `/favicon.ico`, `/favicon-32.png`, `/apple-touch-icon.png`, `/icon-192.png`, `/icon-512.png`, `/site.webmanifest`, and the 1200×630 `/og-card.png`. `npm run assets` regenerates them. Card typography is converted to vector paths with Fontkit before rasterizing with Sharp, avoiding host-dependent font rendering. The Inter OFL notice is preserved.
+
+After deployment, verify the property in Google Search Console and Bing Webmaster Tools, submit `/sitemap.xml`, and request indexing of the homepage. Site ownership verification requires the owner's account or verification token; this project does not fabricate one. Monitor actual queries and indexing rather than treating technical setup as a ranking guarantee. Social networks may cache old previews until their sharing debugger requests a refresh.

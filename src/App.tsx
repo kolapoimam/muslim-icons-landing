@@ -11,6 +11,7 @@ import {
 import { IconArt } from "./IconArt";
 import { copyText, downloadSvg } from "./actions";
 import { config } from "./config";
+import { faqs } from "./content";
 const repo = config.repositoryUrl;
 function Mark() {
   return (
@@ -134,7 +135,7 @@ function Hero() {
           the <span>Ummah.</span>
         </h1>
         <p>
-          A thoughtful icon library for the things you’re building.
+          A thoughtful library of Muslim and Islamic icons.
           <br className="desktop-break" /> Made for Muslim communities. Open to
           everyone.
         </p>
@@ -683,6 +684,27 @@ function BelowExplorer() {
           </div>
         </div>
       </section>
+      <section className="faq" id="faq" aria-labelledby="faq-heading">
+        <div className="section-intro">
+          <span className="eyebrow">A FEW GOOD QUESTIONS.</span>
+          <h2 id="faq-heading">Muslim icons, explained.</h2>
+          <p>
+            What’s in the collection, how to use it, and where we are in the
+            journey.
+          </p>
+        </div>
+        <div className="faq-list">
+          {faqs.map((faq) => (
+            <details key={faq.question}>
+              <summary>
+                {faq.question}
+                <span aria-hidden="true">+</span>
+              </summary>
+              <p>{faq.answer}</p>
+            </details>
+          ))}
+        </div>
+      </section>
       <section className="contribution" id="contribute">
         <div>
           <span className="eyebrow">GOOD THINGS ARE BUILT TOGETHER.</span>
@@ -721,6 +743,7 @@ function Footer() {
           </a>
           <a href="#contribute">Contribute</a>
           <a href={`${repo}/blob/main/LICENSE`}>Licence</a>
+          <a href="/llms.txt">AI reference</a>
         </nav>
       </div>
       <div className="footer-credit">

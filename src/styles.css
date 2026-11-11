@@ -1584,3 +1584,64 @@ footer {
     min-height: 36px;
   }
 }
+
+.faq {
+  border-top: 1px solid var(--line);
+  padding: 54px 0;
+  display: grid;
+  grid-template-columns: 1fr 1.3fr;
+  gap: 85px;
+}
+.faq .section-intro > p {
+  max-width: 310px;
+}
+.faq-list details {
+  border-bottom: 1px solid var(--line);
+}
+.faq-list details:first-child {
+  border-top: 1px solid var(--line);
+}
+.faq-list summary {
+  padding: 19px 0;
+  min-height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 550;
+  list-style: none;
+}
+.faq-list summary::-webkit-details-marker {
+  display: none;
+}
+.faq-list summary span {
+  color: var(--green);
+  font-size: 20px;
+  font-weight: 400;
+}
+.faq-list details[open] summary span {
+  transform: rotate(45deg);
+}
+.faq-list p {
+  padding: 0 20px 20px 0;
+  font-size: 12px;
+}
+@media (max-width: 1100px) {
+  .faq {
+    gap: 50px;
+  }
+}
+@media (max-width: 800px) {
+  .faq {
+    gap: 35px;
+  }
+}
+@media (max-width: 600px) {
+  .faq {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    padding: 36px 0;
+  }
+}
