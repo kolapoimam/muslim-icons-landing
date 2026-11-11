@@ -723,6 +723,12 @@ function Footer() {
           <a href={`${repo}/blob/main/LICENSE`}>Licence</a>
         </nav>
       </div>
+      <div className="footer-credit">
+        <span>Powered by</span>{" "}
+        <a href="https://hdfund.org">
+          Human Development Fund <Arrow />
+        </a>
+      </div>
       <div className="footer-bottom">
         <span>© {new Date().getFullYear()} Muslim Icons</span>
         <span>Code: MIT · Artwork: review licensing notes</span>
