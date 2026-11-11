@@ -12,6 +12,18 @@ import { IconArt, getSvg } from "./IconArt";
 import { copyText, downloadSvg } from "./actions";
 import { config } from "./config";
 import { faqs } from "./content";
+import { ExplorerToolbar, WeightSelect } from "./ExplorerToolbar";
+import {
+  defaultSettings,
+  readSettings,
+  readableInk,
+  strokeWeights,
+  type ExplorerSettings,
+  type StrokeWeight,
+  type Availability,
+  type SortOrder,
+} from "./explorer-settings";
+import { customizeSvg } from "./svg-options";
 import {
   initAnalytics,
   trackEvent,
@@ -226,6 +238,8 @@ function PreviewControls({
   setBackground,
   context = "grid",
   iconName,
+  weight,
+  setWeight,
 }: {
   size: number;
   setSize: (v: number) => void;
@@ -235,16 +249,32 @@ function PreviewControls({
   setBackground: (v: string) => void;
   context?: "grid" | "detail";
   iconName?: string;
+  weight?: StrokeWeight;
+  setWeight?: (value: StrokeWeight) => void;
 }) {
   return (
     <div className="preview-controls">
+      {weight && setWeight && (
+        <WeightSelect
+          value={weight}
+          onChange={(value) => {
+            setWeight(value);
+            trackEvent("preview_change", {
+              control: "weight",
+              stroke_weight: value,
+              context,
+              icon_name: iconName,
+            });
+          }}
+        />
+      )}
       <label className="size-control">
         Size{" "}
         <input
           aria-label="Icon size"
           type="range"
-          min="20"
-          max="64"
+          min="16"
+          max="96"
           step="2"
           value={size}
           onChange={(e) => {
@@ -334,6 +364,8 @@ function DetailPanel({
   setColor,
   background,
   setBackground,
+  weight,
+  setWeight,
 }: {
   icon: IconRecord;
   onClose: () => void;
@@ -343,6 +375,8 @@ function DetailPanel({
   setColor: (v: string) => void;
   background: string;
   setBackground: (v: string) => void;
+  weight: StrokeWeight;
+  setWeight: (value: StrokeWeight) => void;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -399,7 +433,12 @@ function DetailPanel({
           </button>
         </div>
         <div className="detail-preview" style={{ background }}>
-          <IconArt icon={icon} size={size} color={color} />
+          <IconArt
+            icon={icon}
+            size={size}
+            color={color}
+            strokeWidth={strokeWeights[weight]}
+          />
           <span>
             {size} × {size}
           </span>
@@ -410,6 +449,8 @@ function DetailPanel({
           <p>{icon.description}</p>
           <div className="detail-category">{icon.category}</div>
           <PreviewControls
+            weight={weight}
+            setWeight={setWeight}
             context="detail"
             iconName={icon.name}
             {...{ size, setSize, color, setColor, background, setBackground }}
@@ -431,7 +472,10 @@ function DetailPanel({
               />
               <Code
                 title="JSX usage"
-                code={jsxExample(icon, size)}
+                code={jsxExample(icon, size, {
+                  strokeWidth: strokeWeights[weight],
+                  color,
+                })}
                 format="jsx"
                 iconName={icon.name}
               />
@@ -439,7 +483,11 @@ function DetailPanel({
           ) : (
             <Code
               title="SVG markup"
-              code={getSvg(icon)}
+              code={customizeSvg(getSvg(icon), {
+                size,
+                color,
+                strokeWidth: strokeWeights[weight],
+              })}
               format="svg"
               iconName={icon.name}
             />
@@ -448,7 +496,7 @@ function DetailPanel({
             className="button primary download"
             onClick={() => {
               try {
-                downloadSvg(icon, color, size);
+                downloadSvg(icon, color, size, strokeWeights[weight]);
               } catch (e) {
                 setError((e as Error).message);
                 trackEvent("download_svg_failed", { icon_name: icon.name });
@@ -475,233 +523,289 @@ function DetailPanel({
   );
 }
 function Explorer() {
-  const [query, setQuery] = useState("");
-  const [category, setCategory] = useState("All Icons");
-  const [size, setSize] = useState(32);
-  const [color, setColor] = useState(colors[0]);
-  const [background, setBackground] = useState("#ffffff");
-  const [density, setDensity] = useState("comfortable");
+  const [settings, setSettings] = useState<ExplorerSettings>(() => ({
+    ...defaultSettings,
+  }));
+  const {
+    query,
+    category,
+    size,
+    color,
+    background,
+    density,
+    weight,
+    availability,
+    sort,
+  } = settings;
   const [selected, setSelected] = useState<IconRecord | null>(null);
+  const [resetToken, setResetToken] = useState(0);
   const search = useRef<HTMLInputElement>(null);
   const openedAt = useRef(0);
   useEffect(() => {
-    const key = (e: KeyboardEvent) => {
-      const t = e.target as HTMLElement;
-      if (
-        e.key === "/" &&
-        !["INPUT", "TEXTAREA", "SELECT"].includes(t.tagName) &&
-        !document.querySelector('[role="dialog"]')
-      ) {
-        e.preventDefault();
+    const restore = () => setSettings(readSettings(window.location.search));
+    restore();
+    window.addEventListener("popstate", restore);
+    return () => window.removeEventListener("popstate", restore);
+  }, []);
+  useEffect(() => {
+    const key = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement;
+      const typing =
+        ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName) ||
+        target.isContentEditable;
+      const shortcut =
+        (event.key.toLowerCase() === "k" && (event.metaKey || event.ctrlKey)) ||
+        (event.key === "/" && !typing);
+      if (shortcut && !document.querySelector('[role="dialog"]')) {
+        event.preventDefault();
         search.current?.focus();
       }
     };
     document.addEventListener("keydown", key);
     return () => document.removeEventListener("keydown", key);
   }, []);
+  const change = (patch: Partial<ExplorerSettings>) => {
+    const next = { ...settings, ...patch };
+    if (patch.background && [defaultSettings.color, "#fafbf7"].includes(color))
+      next.color = readableInk(patch.background);
+    setSettings(next);
+    if (patch.category && patch.category !== category)
+      trackEvent("category_filter", {
+        icon_category: next.category,
+        icon_count: findIcons("", next.category).length,
+      });
+    if (patch.availability && patch.availability !== availability)
+      trackEvent("availability_filter", { availability: next.availability });
+    if (patch.sort && patch.sort !== sort)
+      trackEvent("sort_change", { sort_order: next.sort });
+    if (patch.density && patch.density !== density)
+      trackEvent("grid_density_change", { density: next.density });
+    for (const control of ["size", "color", "background", "weight"] as const) {
+      if (patch[control] !== undefined && patch[control] !== settings[control])
+        trackDebouncedEvent(`toolbar_${control}`, "preview_change", {
+          control,
+          context: "grid",
+          icon_size: next.size,
+          icon_color: next.color,
+          canvas_color: next.background,
+          stroke_weight: next.weight,
+        });
+    }
+  };
+  const openIcon = (icon: IconRecord, source = "grid") => {
+    openedAt.current = Date.now();
+    setSelected(icon);
+    trackEvent("icon_preview", {
+      icon_name: icon.name,
+      icon_category: icon.category,
+      available_in_package: icon.availableInPackage,
+      source,
+    });
+  };
   const closeDetail = useCallback(() => {
     if (selected)
       trackEvent("icon_preview_close", {
         icon_name: selected.name,
-        view_duration_ms: Date.now() - openedAt.current,
+        view_duration_ms: Math.max(0, Date.now() - openedAt.current),
       });
     setSelected(null);
   }, [selected]);
-  const filtered = findIcons(query, category);
+  const availableIcons = icons.filter(
+    (icon) =>
+      availability === "all" ||
+      (availability === "npm"
+        ? icon.availableInPackage
+        : !icon.availableInPackage),
+  );
+  const filtered = findIcons(query, category).filter((icon) =>
+    availableIcons.includes(icon),
+  );
+  if (sort !== "collection")
+    filtered.sort(
+      (a, b) =>
+        (sort === "name-asc" ? 1 : -1) *
+        a.displayName.localeCompare(b.displayName),
+    );
   useEffect(() => {
     if (!query.trim()) return;
-    const timeout = setTimeout(
+    const timer = setTimeout(
       () =>
-        trackEvent(
-          "search",
-          searchParameters(query, category, filtered.length),
-        ),
+        trackEvent("search", {
+          ...searchParameters(query, category, filtered.length),
+          availability,
+        }),
       600,
     );
-    return () => clearTimeout(timeout);
-  }, [query, category, filtered.length]);
+    return () => clearTimeout(timer);
+  }, [query, category, availability, filtered.length]);
   const reset = () => {
     trackEvent("filters_reset", { icon_category: category });
-    setQuery("");
-    setCategory("All Icons");
+    setSettings({ ...defaultSettings });
+    setResetToken((current) => current + 1);
+    const url = new URL(window.location.href);
+    for (const key of [...url.searchParams.keys()])
+      if (key.startsWith("mi_")) url.searchParams.delete(key);
+    window.history.replaceState(null, "", url.pathname + url.search + url.hash);
     search.current?.focus();
   };
+  const setSize = (value: number) =>
+    setSettings((current) => ({ ...current, size: value }));
+  const setColor = (value: string) =>
+    setSettings((current) => ({ ...current, color: value }));
+  const setBackground = (value: string) =>
+    setSettings((current) => ({
+      ...current,
+      background: value,
+      color: [defaultSettings.color, "#fafbf7"].includes(current.color)
+        ? readableInk(value)
+        : current.color,
+    }));
+  const setWeight = (value: StrokeWeight) =>
+    setSettings((current) => ({ ...current, weight: value }));
   return (
     <section className="explorer" id="icons" aria-labelledby="explorer-title">
       <div className="explorer-heading">
-        <div>
-          <h2 id="explorer-title">
-            Find your next icon.
-            <span className="count-pill">{icons.length} icons</span>
-          </h2>
-        </div>
-        <span className="preview-badge">
-          <span className="status-dot" /> The icon library
-        </span>
+        <h2 id="explorer-title">
+          Explore the icons.
+          <span className="count-pill">{icons.length} icons</span>
+        </h2>
+        <span className="library-format">24 × 24 / SVG + React</span>
       </div>
-      <div className="search-box">
-        <svg
-          width="21"
-          height="21"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.6"
-          aria-hidden="true"
+      <ExplorerToolbar
+        settings={settings}
+        onChange={change}
+        searchRef={search}
+        onReset={reset}
+        onRandom={() => {
+          if (filtered.length)
+            openIcon(
+              filtered[Math.floor(Math.random() * filtered.length)],
+              "random",
+            );
+        }}
+        hasResults={filtered.length > 0}
+        resetToken={resetToken}
+      />
+      <div className="explorer-filter-row">
+        <div
+          className="category-list"
+          role="group"
+          aria-label="Filter by category"
         >
-          <circle cx="10" cy="10" r="6" />
-          <path d="m15 15 5 5" />
-        </svg>
-        <input
-          ref={search}
-          aria-label="Search icons"
-          placeholder="Search icons... mosque, quran, prayer, ramadan"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-        />
-        {query ? (
-          <button
-            aria-label="Clear search"
-            className="icon-button"
-            onClick={() => {
-              trackEvent("search_clear", { icon_category: category });
-              setQuery("");
-              search.current?.focus();
-            }}
-          >
-            ×
-          </button>
-        ) : (
-          <kbd>/</kbd>
-        )}
-      </div>
-      <div className="explorer-body">
-        <aside className="category-rail">
-          <h3>CATEGORIES</h3>
-          <div
-            className="category-list"
-            role="group"
-            aria-label="Filter by category"
-          >
-            {["All Icons", ...categories].map((c, i) => (
-              <button
-                key={c}
-                aria-pressed={category === c}
-                onClick={() => {
-                  if (c !== category)
-                    trackEvent("category_filter", {
-                      icon_category: c,
-                      icon_count: findIcons("", c).length,
-                    });
-                  setCategory(c);
-                }}
-                className={category === c ? "category active" : "category"}
-              >
-                <span className="category-symbol" aria-hidden="true">
-                  {["⊞", "⌂", "◇", "▤", "✧", "⬡", "◈", "♧", "✳"][i]}
-                </span>
-                <span>{c}</span>
-                <span className="category-count">
-                  {c === "All Icons"
-                    ? icons.length
-                    : icons.filter((icon) => icon.category === c).length}
-                </span>
-              </button>
-            ))}
-          </div>
-          <div className="rail-note">
-            <span aria-hidden="true">↳</span>
-            <a
-              target="_blank"
-              rel="noopener noreferrer"
-              href={`${repo}/issues`}
-            >
-              Suggest an icon <Arrow />
-            </a>
-          </div>
-        </aside>
-        <div className="results">
-          <div className="results-toolbar">
-            <PreviewControls
-              {...{ size, setSize, color, setColor, background, setBackground }}
-            />
+          {["All Icons", ...categories].map((c) => (
             <button
-              className="density"
-              aria-label="Toggle compact grid"
-              aria-pressed={density === "compact"}
-              onClick={() => {
-                const next = density === "compact" ? "comfortable" : "compact";
-                setDensity(next);
-                trackEvent("grid_density_change", { density: next });
-              }}
+              key={c}
+              type="button"
+              aria-pressed={category === c}
+              className={category === c ? "category active" : "category"}
+              onClick={() => change({ category: c })}
             >
-              ▦
+              <span>{c}</span>
+              <span className="category-count">
+                {c === "All Icons"
+                  ? availableIcons.length
+                  : availableIcons.filter((icon) => icon.category === c).length}
+              </span>
             </button>
-          </div>
-          <div className="results-meta">
-            <span role="status" aria-label="Search results">
-              {filtered.length} {filtered.length === 1 ? "icon" : "icons"}
-              {query
-                ? ` matching “${query}”`
-                : category === "All Icons"
-                  ? " in the collection"
-                  : ` in ${category}`}
-            </span>
-            <span>
-              Select an icon to preview <span aria-hidden="true">↗</span>
-            </span>
-          </div>
-          {filtered.length ? (
-            <div
-              className={`icon-grid ${density}`}
-              style={
-                { "--canvas": background } as import("react").CSSProperties
+          ))}
+        </div>
+      </div>
+      <div className="results-meta">
+        <span role="status" aria-label="Search results">
+          {filtered.length} {filtered.length === 1 ? "icon" : "icons"}
+          {query
+            ? ` matching “${query}”`
+            : category === "All Icons"
+              ? " in the collection"
+              : ` in ${category}`}
+        </span>
+        <div className="results-options">
+          <label>
+            Availability
+            <select
+              aria-label="Icon availability"
+              value={availability}
+              onChange={(event) =>
+                change({ availability: event.target.value as Availability })
               }
             >
-              {filtered.map((icon) => (
-                <button
-                  className="icon-card"
-                  aria-label={`Preview ${icon.displayName}`}
-                  key={icon.name}
-                  onClick={() => {
-                    openedAt.current = Date.now();
-                    setSelected(icon);
-                    trackEvent("icon_preview", {
-                      icon_name: icon.name,
-                      icon_category: icon.category,
-                      available_in_package: icon.availableInPackage,
-                    });
-                  }}
-                  style={{ color }}
-                >
-                  <span className="card-arrow" aria-hidden="true">
-                    ↗
-                  </span>
-                  <IconArt icon={icon} size={size} />
-                  <span className="icon-name">{icon.displayName}</span>
-                </button>
-              ))}
-            </div>
-          ) : (
-            <div className="empty-state">
-              <span aria-hidden="true">⌕</span>
-              <h3>No icons found.</h3>
-              <p>
-                Try another name, an alias like “tasbih”, or a different
-                category.
-              </p>
-              <button className="button secondary" onClick={reset}>
-                Reset search & filters
-              </button>
-            </div>
-          )}
+              <option value="all">All icons</option>
+              <option value="npm">React on npm</option>
+              <option value="svg">SVG source only</option>
+            </select>
+          </label>
+          <label>
+            Sort
+            <select
+              aria-label="Sort icons"
+              value={sort}
+              onChange={(event) =>
+                change({ sort: event.target.value as SortOrder })
+              }
+            >
+              <option value="collection">Collection order</option>
+              <option value="name-asc">Name A–Z</option>
+              <option value="name-desc">Name Z–A</option>
+            </select>
+          </label>
         </div>
       </div>
+      {filtered.length ? (
+        <div
+          className={`icon-grid ${density}`}
+          style={
+            {
+              "--canvas": background,
+              "--preview-size": `${size}px`,
+            } as import("react").CSSProperties
+          }
+        >
+          {filtered.map((icon) => (
+            <button
+              className="icon-card"
+              aria-label={`Preview ${icon.displayName}`}
+              key={icon.name}
+              onClick={() => openIcon(icon)}
+              style={{ color }}
+            >
+              <span className="card-arrow" aria-hidden="true">
+                ↗
+              </span>
+              <IconArt
+                icon={icon}
+                size={size}
+                strokeWidth={strokeWeights[weight]}
+              />
+              <span className="icon-name">{icon.displayName}</span>
+            </button>
+          ))}
+        </div>
+      ) : (
+        <div className="empty-state">
+          <span aria-hidden="true">⌕</span>
+          <h3>No icons found.</h3>
+          <p>
+            Try another name, an alias like “tasbih”, or a different category.
+          </p>
+          <button className="button secondary" onClick={reset}>
+            Reset search & filters
+          </button>
+        </div>
+      )}
       {selected && (
         <DetailPanel
           icon={selected}
           onClose={closeDetail}
-          {...{ size, setSize, color, setColor, background, setBackground }}
+          {...{
+            size,
+            setSize,
+            color,
+            setColor,
+            background,
+            setBackground,
+            weight,
+            setWeight,
+          }}
         />
       )}
     </section>
@@ -725,6 +829,7 @@ function Feature({
   );
 }
 function BelowExplorer() {
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
   return (
     <>
       <section className="purpose">
@@ -813,20 +918,35 @@ function BelowExplorer() {
           <p>Package usage, SVG downloads and licensing.</p>
         </div>
         <div className="faq-list">
-          {faqs.map((faq) => (
-            <details
-              key={faq.question}
-              onToggle={(event) => {
-                if (event.currentTarget.open)
-                  trackEvent("faq_open", { question: faq.question });
-              }}
-            >
-              <summary>
-                {faq.question}
-                <span aria-hidden="true">+</span>
-              </summary>
-              <p>{faq.answer}</p>
-            </details>
+          {faqs.map((faq, index) => (
+            <div className="faq-item" key={faq.question}>
+              <h3>
+                <button
+                  type="button"
+                  className="faq-question"
+                  id={`faq-question-${index}`}
+                  aria-expanded={openFaq === index}
+                  aria-controls={`faq-answer-${index}`}
+                  onClick={() => {
+                    const next = openFaq === index ? null : index;
+                    setOpenFaq(next);
+                    if (next !== null)
+                      trackEvent("faq_open", { question: faq.question });
+                  }}
+                >
+                  {faq.question}
+                  <span aria-hidden="true">+</span>
+                </button>
+              </h3>
+              <div
+                id={`faq-answer-${index}`}
+                role="region"
+                aria-labelledby={`faq-question-${index}`}
+                hidden={openFaq !== index}
+              >
+                <p>{faq.answer}</p>
+              </div>
+            </div>
           ))}
         </div>
       </section>

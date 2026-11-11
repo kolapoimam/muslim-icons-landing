@@ -6,25 +6,28 @@ The site loads Google Tag Manager container **GTM-NGWM555W** once, asynchronousl
 
 ## Events
 
-| Event                    | Trigger                                                       | Useful parameters                                                               |
-| ------------------------ | ------------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| `library_ready`          | Interactive explorer mounts, once per page                    | `icon_count`, `package_version`                                                 |
-| `search`                 | Search pauses for 600 ms                                      | `search_term`, `query_length`, `icon_category`, `result_count`                  |
-| `search_clear`           | Clear-search button                                           | `icon_category`                                                                 |
-| `filters_reset`          | Reset search and filters                                      | `icon_category`                                                                 |
-| `category_filter`        | A different category is selected                              | `icon_category`, `icon_count`                                                   |
-| `icon_preview`           | Icon details open                                             | `icon_name`, `icon_category`, `available_in_package`                            |
-| `icon_preview_close`     | Details close, including Escape/backdrop                      | `icon_name`, `view_duration_ms`                                                 |
-| `preview_change`         | Size, color or canvas changes                                 | `control`, `context`, `icon_name`, `icon_size`, `icon_color`, `canvas_color`    |
-| `grid_density_change`    | Compact/comfortable grid toggle                               | `density`                                                                       |
-| `copy_code`              | Clipboard write succeeds                                      | `code_format`, `icon_name`                                                      |
-| `copy_code_failed`       | Clipboard write fails                                         | `code_format`, `icon_name`, `failure_reason`                                    |
-| `download_svg`           | SVG blob and download action are created                      | `icon_name`, `icon_category`, `icon_size`, `icon_color`, `available_in_package` |
-| `download_svg_failed`    | Download creation fails                                       | `icon_name`                                                                     |
-| `cta_click`              | Navigation/CTA/attribution link is activated                  | `link_type`, `link_text`, `link_url`, `placement`, `new_tab`                    |
-| `faq_open`               | FAQ answer opens                                              | `question`                                                                      |
-| `section_view`           | A section heading becomes at least 50% visible, once per page | `section_id`                                                                    |
-| `navigation_menu_toggle` | Mobile menu opens/closes                                      | `menu_state`                                                                    |
+| Event                    | Trigger                                                       | Useful parameters                                                                             |
+| ------------------------ | ------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| `library_ready`          | Interactive explorer mounts, once per page                    | `icon_count`, `package_version`                                                               |
+| `search`                 | Search pauses for 600 ms                                      | `search_term`, `query_length`, `icon_category`, `result_count`                                |
+| `search_clear`           | Clear-search button                                           | `icon_category`                                                                               |
+| `filters_reset`          | Reset search and filters                                      | `icon_category`                                                                               |
+| `availability_filter`    | npm/all/SVG-source filter changes                             | `availability`                                                                                |
+| `sort_change`            | Collection/name sort changes                                  | `sort_order`                                                                                  |
+| `share_view`             | View link copied successfully                                 | `icon_category`, `weight`                                                                     |
+| `category_filter`        | A different category is selected                              | `icon_category`, `icon_count`                                                                 |
+| `icon_preview`           | Icon details open                                             | `icon_name`, `icon_category`, `available_in_package`                                          |
+| `icon_preview_close`     | Details close, including Escape/backdrop                      | `icon_name`, `view_duration_ms`                                                               |
+| `preview_change`         | Size, color or canvas changes                                 | `control`, `context`, `icon_name`, `icon_size`, `icon_color`, `canvas_color`, `stroke_weight` |
+| `grid_density_change`    | Compact/comfortable grid toggle                               | `density`                                                                                     |
+| `copy_code`              | Clipboard write succeeds                                      | `code_format`, `icon_name`                                                                    |
+| `copy_code_failed`       | Clipboard write fails                                         | `code_format`, `icon_name`, `failure_reason`                                                  |
+| `download_svg`           | SVG blob and download action are created                      | `icon_name`, `icon_category`, `icon_size`, `icon_color`, `available_in_package`               |
+| `download_svg_failed`    | Download creation fails                                       | `icon_name`                                                                                   |
+| `cta_click`              | Navigation/CTA/attribution link is activated                  | `link_type`, `link_text`, `link_url`, `placement`, `new_tab`                                  |
+| `faq_open`               | FAQ answer opens                                              | `question`                                                                                    |
+| `section_view`           | A section heading becomes at least 50% visible, once per page | `section_id`                                                                                  |
+| `navigation_menu_toggle` | Mobile menu opens/closes                                      | `menu_state`                                                                                  |
 
 `link_type` distinguishes npm, GitHub, documentation, contribution, attribution, licence and internal navigation. `code_format` distinguishes React imports, JSX, SVG markup, install commands and React examples. `context` distinguishes grid and detail controls. Continuous size/color changes are debounced by 500 ms. Empty searches and initial control values do not create change events.
 

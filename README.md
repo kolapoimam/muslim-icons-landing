@@ -25,7 +25,7 @@ The published npm package is `@muslim-icons/react@0.2.1`, which currently export
 
 ## UI and accessibility
 
-Search combines with categories and supports aliases such as salah, tasbih and fanous. `/` focuses search. The detail dialog supports Escape, focus trapping, focus restoration and scroll locking. Size, color, canvas and density controls are live; downloads preserve the chosen size/color. Hover outlines preserve the icon's canvas, color, size and opacity. The single footer row places the Ihsan Labs attribution between the brand and links.
+Search combines with categories and supports aliases such as salah, tasbih and fanous. `/` and Ctrl/Cmd+K focus search. The detail dialog supports Escape, focus trapping, focus restoration and scroll locking. Size, color, canvas and density controls are live; downloads preserve the chosen size/color. Hover outlines preserve the icon's canvas, color, size and opacity. The single footer row places the inline “Powered by Ihsan Labs” attribution between the brand and links. FAQ answers use an exclusive, keyboard-accessible accordion.
 
 ## Search and machine-readable discovery
 
@@ -48,3 +48,11 @@ Automated tests cover search, aliases, filters, previews, dialogs, focus, clipbo
 ## Analytics
 
 Google Tag Manager container `GTM-NGWM555W` is installed with its existing GA4 destination `G-93BBGVF37L`. Custom events cover discovery, previews, copying, downloads, links and engagement. The application preserves the container's automatic page views instead of loading a duplicate Google tag. See [analytics events and verification](docs/analytics.md) for the event schema, payload boundaries and GA4 reporting setup.
+
+## Explorer toolbar
+
+The sticky toolbar provides four outline weights (Thin, Light, Regular and Bold), 16–96px previews, a hex/color-picker field, canvas selection, complete reset, shareable view links, a filtered random-icon preview and grid density. Horizontal categories combine with npm/SVG-source availability and collection/name sorting. Availability-aware category counts reflect the selected release filter.
+
+The canonical artwork remains unchanged. Weight controls set the supported SVG/React `strokeWidth` property; fill and duotone artwork are not supplied by this library. Detail previews, copied JSX/SVG markup and SVG downloads reflect the chosen weight, size and color.
+
+Share links use validated `mi_` query parameters and restore after hydration. Unknown weights/colors are ignored, sizes are clamped, and reset removes only the explorer parameters. Clipboard failure exposes a selectable view URL. Large icons automatically reduce column count so they remain inside their grid cells.

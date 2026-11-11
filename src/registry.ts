@@ -30,6 +30,18 @@ export function findIcons(query: string, category = "All Icons") {
 export function importExample(icon: IconRecord) {
   return `import { ${icon.packageComponent ?? icon.componentName} } from "@muslim-icons/react";`;
 }
-export function jsxExample(icon: IconRecord, size = 24) {
-  return `<${icon.packageComponent ?? icon.componentName} size={${size}} />`;
+export function jsxExample(
+  icon: IconRecord,
+  size = 24,
+  options: { strokeWidth?: number; color?: string } = {},
+) {
+  const stroke =
+    options.strokeWidth && options.strokeWidth !== 2
+      ? ` strokeWidth={${options.strokeWidth}}`
+      : "";
+  const color =
+    options.color && options.color !== "#293e35"
+      ? ` color="${options.color}"`
+      : "";
+  return `<${icon.packageComponent ?? icon.componentName} size={${size}}${stroke}${color} />`;
 }

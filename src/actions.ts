@@ -1,4 +1,5 @@
 import { trackEvent } from "./analytics";
+import { withStrokeWidth } from "./svg-options";
 import { getSvg } from "./IconArt";
 import type { IconRecord } from "./registry";
 export async function copyText(text: string) {
@@ -8,11 +9,16 @@ export async function copyText(text: string) {
     );
   await navigator.clipboard.writeText(text);
 }
-export function downloadSvg(icon: IconRecord, color: string, size: number) {
+export function downloadSvg(
+  icon: IconRecord,
+  color: string,
+  size: number,
+  strokeWidth = 2,
+) {
   const source = getSvg(icon);
   if (!source)
     throw new Error("This SVG is unavailable. Please try another icon.");
-  const svg = source
+  const svg = withStrokeWidth(source, strokeWidth)
     .replace(
       /<svg\b([^>]*)>/,
       (_, attrs: string) =>
@@ -31,6 +37,7 @@ export function downloadSvg(icon: IconRecord, color: string, size: number) {
     icon_name: icon.name,
     icon_category: icon.category,
     icon_size: size,
+    stroke_width: strokeWidth,
     icon_color: color,
     available_in_package: icon.availableInPackage,
   });
