@@ -12,6 +12,12 @@ import { IconArt, getSvg } from "./IconArt";
 import { copyText, downloadSvg } from "./actions";
 import { config } from "./config";
 import { faqs } from "./content";
+import {
+  initAnalytics,
+  trackEvent,
+  trackDebouncedEvent,
+  searchParameters,
+} from "./analytics";
 const repo = config.repositoryUrl;
 function Mark() {
   return (
@@ -37,9 +43,13 @@ function Arrow() {
 function CopyButton({
   text,
   label = "Copy",
+  format = "code",
+  iconName,
 }: {
   text: string;
   label?: string;
+  format?: string;
+  iconName?: string;
 }) {
   const [message, setMessage] = useState("");
   return (
@@ -50,8 +60,17 @@ function CopyButton({
           try {
             await copyText(text);
             setMessage("Copied");
+            trackEvent("copy_code", {
+              code_format: format,
+              icon_name: iconName,
+            });
           } catch (e) {
             setMessage((e as Error).message);
+            trackEvent("copy_code_failed", {
+              code_format: format,
+              icon_name: iconName,
+              failure_reason: "clipboard_unavailable",
+            });
           }
         }}
       >
@@ -65,12 +84,22 @@ function CopyButton({
     </>
   );
 }
-function Code({ title, code }: { title: string; code: string }) {
+function Code({
+  title,
+  code,
+  format = "code",
+  iconName,
+}: {
+  title: string;
+  code: string;
+  format?: string;
+  iconName?: string;
+}) {
   return (
     <div className="code">
       <div className="code-top">
         <span>{title}</span>
-        <CopyButton text={code} />
+        <CopyButton text={code} format={format} iconName={iconName} />
       </div>
       <pre>
         <code>{code}</code>
@@ -88,7 +117,12 @@ function Navbar() {
           className="menu-button"
           aria-label="Toggle navigation"
           aria-expanded={open}
-          onClick={() => setOpen(!open)}
+          onClick={() => {
+            setOpen(!open);
+            trackEvent("navigation_menu_toggle", {
+              menu_state: open ? "closed" : "open",
+            });
+          }}
         >
           {open ? "Close" : "Menu"} <span aria-hidden="true">☰</span>
         </button>
@@ -139,20 +173,12 @@ function Hero() {
   return (
     <section className="hero" id="home">
       <div className="hero-copy">
-        <div className="eyebrow">
-          <span className="status-dot" /> AN OPEN SOURCE COLLECTION, WITH
-          PURPOSE
-        </div>
         <h1>
           Icons for
           <br />
           the <span>Ummah.</span>
         </h1>
-        <p>
-          A thoughtful library of Muslim and Islamic icons.
-          <br className="desktop-break" /> Made for Muslim communities. Open to
-          everyone.
-        </p>
+        <p>Muslim and Islamic icons for apps, websites and design systems.</p>
         <div className="hero-actions">
           <a
             target="_blank"
@@ -171,11 +197,6 @@ function Hero() {
             Get the React package <Arrow />
           </a>
         </div>
-        <div className="hero-meta">
-          <span>Free & open source</span>
-          <span>SVG + React</span>
-          <span>Made with intention</span>
-        </div>
       </div>
       <div
         className="hero-display"
@@ -191,10 +212,6 @@ function Hero() {
             </div>
           ))}
         </div>
-        <div className="spec-footer">
-          <span>Distinct in meaning. Consistent in form.</span>
-          <span aria-hidden="true">✳</span>
-        </div>
       </div>
     </section>
   );
@@ -207,6 +224,8 @@ function PreviewControls({
   setColor,
   background,
   setBackground,
+  context = "grid",
+  iconName,
 }: {
   size: number;
   setSize: (v: number) => void;
@@ -214,6 +233,8 @@ function PreviewControls({
   setColor: (v: string) => void;
   background: string;
   setBackground: (v: string) => void;
+  context?: "grid" | "detail";
+  iconName?: string;
 }) {
   return (
     <div className="preview-controls">
@@ -226,7 +247,16 @@ function PreviewControls({
           max="64"
           step="2"
           value={size}
-          onChange={(e) => setSize(Number(e.target.value))}
+          onChange={(e) => {
+            const value = Number(e.target.value);
+            setSize(value);
+            trackDebouncedEvent(`size_${context}`, "preview_change", {
+              control: "size",
+              icon_size: value,
+              context,
+              icon_name: iconName,
+            });
+          }}
         />
         <output>
           {size}
@@ -243,7 +273,15 @@ function PreviewControls({
             aria-pressed={color === c}
             className="swatch"
             style={{ background: c }}
-            onClick={() => setColor(c)}
+            onClick={() => {
+              setColor(c);
+              trackEvent("preview_change", {
+                control: "color",
+                icon_color: c,
+                context,
+                icon_name: iconName,
+              });
+            }}
           />
         ))}
         <label className="custom-color" title="Custom icon color">
@@ -251,7 +289,15 @@ function PreviewControls({
             aria-label="Custom icon color"
             type="color"
             value={color}
-            onChange={(e) => setColor(e.target.value)}
+            onChange={(e) => {
+              setColor(e.target.value);
+              trackDebouncedEvent(`color_${context}`, "preview_change", {
+                control: "color",
+                icon_color: e.target.value,
+                context,
+                icon_name: iconName,
+              });
+            }}
           />
           <span aria-hidden="true">+</span>
         </label>
@@ -261,7 +307,15 @@ function PreviewControls({
         <select
           aria-label="Preview background"
           value={background}
-          onChange={(e) => setBackground(e.target.value)}
+          onChange={(e) => {
+            setBackground(e.target.value);
+            trackEvent("preview_change", {
+              control: "background",
+              canvas_color: e.target.value,
+              context,
+              icon_name: iconName,
+            });
+          }}
         >
           <option value="#ffffff">White</option>
           <option value="#f3f4ee">Warm</option>
@@ -356,6 +410,8 @@ function DetailPanel({
           <p>{icon.description}</p>
           <div className="detail-category">{icon.category}</div>
           <PreviewControls
+            context="detail"
+            iconName={icon.name}
             {...{ size, setSize, color, setColor, background, setBackground }}
           />
           <div className="tags">
@@ -367,11 +423,26 @@ function DetailPanel({
           </div>
           {icon.availableInPackage ? (
             <>
-              <Code title="React import" code={importExample(icon)} />
-              <Code title="JSX usage" code={jsxExample(icon, size)} />
+              <Code
+                title="React import"
+                code={importExample(icon)}
+                format="react_import"
+                iconName={icon.name}
+              />
+              <Code
+                title="JSX usage"
+                code={jsxExample(icon, size)}
+                format="jsx"
+                iconName={icon.name}
+              />
             </>
           ) : (
-            <Code title="SVG markup" code={getSvg(icon)} />
+            <Code
+              title="SVG markup"
+              code={getSvg(icon)}
+              format="svg"
+              iconName={icon.name}
+            />
           )}
           <button
             className="button primary download"
@@ -380,6 +451,7 @@ function DetailPanel({
                 downloadSvg(icon, color, size);
               } catch (e) {
                 setError((e as Error).message);
+                trackEvent("download_svg_failed", { icon_name: icon.name });
               }
             }}
           >
@@ -411,6 +483,7 @@ function Explorer() {
   const [density, setDensity] = useState("comfortable");
   const [selected, setSelected] = useState<IconRecord | null>(null);
   const search = useRef<HTMLInputElement>(null);
+  const openedAt = useRef(0);
   useEffect(() => {
     const key = (e: KeyboardEvent) => {
       const t = e.target as HTMLElement;
@@ -426,9 +499,29 @@ function Explorer() {
     document.addEventListener("keydown", key);
     return () => document.removeEventListener("keydown", key);
   }, []);
-  const closeDetail = useCallback(() => setSelected(null), []);
+  const closeDetail = useCallback(() => {
+    if (selected)
+      trackEvent("icon_preview_close", {
+        icon_name: selected.name,
+        view_duration_ms: Date.now() - openedAt.current,
+      });
+    setSelected(null);
+  }, [selected]);
   const filtered = findIcons(query, category);
+  useEffect(() => {
+    if (!query.trim()) return;
+    const timeout = setTimeout(
+      () =>
+        trackEvent(
+          "search",
+          searchParameters(query, category, filtered.length),
+        ),
+      600,
+    );
+    return () => clearTimeout(timeout);
+  }, [query, category, filtered.length]);
   const reset = () => {
+    trackEvent("filters_reset", { icon_category: category });
     setQuery("");
     setCategory("All Icons");
     search.current?.focus();
@@ -437,9 +530,6 @@ function Explorer() {
     <section className="explorer" id="icons" aria-labelledby="explorer-title">
       <div className="explorer-heading">
         <div>
-          <span className="eyebrow">
-            SMALL DETAILS. MEANINGFUL POSSIBILITIES.
-          </span>
           <h2 id="explorer-title">
             Find your next icon.
             <span className="count-pill">{icons.length} icons</span>
@@ -474,6 +564,7 @@ function Explorer() {
             aria-label="Clear search"
             className="icon-button"
             onClick={() => {
+              trackEvent("search_clear", { icon_category: category });
               setQuery("");
               search.current?.focus();
             }}
@@ -496,7 +587,14 @@ function Explorer() {
               <button
                 key={c}
                 aria-pressed={category === c}
-                onClick={() => setCategory(c)}
+                onClick={() => {
+                  if (c !== category)
+                    trackEvent("category_filter", {
+                      icon_category: c,
+                      icon_count: findIcons("", c).length,
+                    });
+                  setCategory(c);
+                }}
                 className={category === c ? "category active" : "category"}
               >
                 <span className="category-symbol" aria-hidden="true">
@@ -513,10 +611,6 @@ function Explorer() {
           </div>
           <div className="rail-note">
             <span aria-hidden="true">↳</span>
-            <p>
-              A growing collection.
-              <br />A shared purpose.
-            </p>
             <a
               target="_blank"
               rel="noopener noreferrer"
@@ -535,9 +629,11 @@ function Explorer() {
               className="density"
               aria-label="Toggle compact grid"
               aria-pressed={density === "compact"}
-              onClick={() =>
-                setDensity(density === "compact" ? "comfortable" : "compact")
-              }
+              onClick={() => {
+                const next = density === "compact" ? "comfortable" : "compact";
+                setDensity(next);
+                trackEvent("grid_density_change", { density: next });
+              }}
             >
               ▦
             </button>
@@ -552,7 +648,7 @@ function Explorer() {
                   : ` in ${category}`}
             </span>
             <span>
-              Click an icon to make it yours <span aria-hidden="true">↗</span>
+              Select an icon to preview <span aria-hidden="true">↗</span>
             </span>
           </div>
           {filtered.length ? (
@@ -567,7 +663,15 @@ function Explorer() {
                   className="icon-card"
                   aria-label={`Preview ${icon.displayName}`}
                   key={icon.name}
-                  onClick={() => setSelected(icon)}
+                  onClick={() => {
+                    openedAt.current = Date.now();
+                    setSelected(icon);
+                    trackEvent("icon_preview", {
+                      icon_name: icon.name,
+                      icon_category: icon.category,
+                      available_in_package: icon.availableInPackage,
+                    });
+                  }}
                   style={{ color }}
                 >
                   <span className="card-arrow" aria-hidden="true">
@@ -591,10 +695,6 @@ function Explorer() {
               </button>
             </div>
           )}
-          <div className="collection-note">
-            <span aria-hidden="true">↳</span> {icons.length} original SVGs,
-            synced from the Muslim Icons source library.
-          </div>
         </div>
       </div>
       {selected && (
@@ -629,7 +729,6 @@ function BelowExplorer() {
     <>
       <section className="purpose">
         <div className="section-intro">
-          <span className="eyebrow">A LITTLE MORE REPRESENTATION.</span>
           <h2>
             Built for the people
             <br />
@@ -661,7 +760,6 @@ function BelowExplorer() {
       </section>
       <section className="integration" id="documentation">
         <div>
-          <span className="eyebrow">LESS SETUP. MORE BUILDING.</span>
           <h2>
             From icon
             <br />
@@ -691,10 +789,12 @@ function BelowExplorer() {
         <div className="integration-code">
           <Code
             title="01 / Install the React package"
+            format="install"
             code={`npm install ${config.packageName}`}
           />
           <Code
             title="02 / Make it part of your interface"
+            format="react_example"
             code={
               'import { Mosque, Quran, PrayerMat }\n  from "@muslim-icons/react";\n\n<Mosque size={24} />\n<Quran size={32} color="#246b55" />\n<PrayerMat size={24} />'
             }
@@ -709,16 +809,18 @@ function BelowExplorer() {
       </section>
       <section className="faq" id="faq" aria-labelledby="faq-heading">
         <div className="section-intro">
-          <span className="eyebrow">A FEW GOOD QUESTIONS.</span>
           <h2 id="faq-heading">Muslim icons, explained.</h2>
-          <p>
-            What’s in the collection, how to use it, and where we are in the
-            journey.
-          </p>
+          <p>Package usage, SVG downloads and licensing.</p>
         </div>
         <div className="faq-list">
           {faqs.map((faq) => (
-            <details key={faq.question}>
+            <details
+              key={faq.question}
+              onToggle={(event) => {
+                if (event.currentTarget.open)
+                  trackEvent("faq_open", { question: faq.question });
+              }}
+            >
               <summary>
                 {faq.question}
                 <span aria-hidden="true">+</span>
@@ -730,7 +832,6 @@ function BelowExplorer() {
       </section>
       <section className="contribution" id="contribute">
         <div>
-          <span className="eyebrow">GOOD THINGS ARE BUILT TOGETHER.</span>
           <h2>Help shape the collection.</h2>
           <p>
             Design an icon. Improve the code. Share an idea.
@@ -775,7 +876,7 @@ function Footer() {
             rel="noopener noreferrer"
             href="https://hdfund.org"
           >
-            Human Development Fund <Arrow />
+            Ihsan Labs <Arrow />
           </a>
         </div>
         <nav aria-label="Footer">
@@ -804,6 +905,7 @@ function Footer() {
   );
 }
 export default function App() {
+  useEffect(() => initAnalytics(), []);
   return (
     <>
       <button

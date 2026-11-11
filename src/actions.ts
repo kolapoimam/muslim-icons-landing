@@ -1,3 +1,4 @@
+import { trackEvent } from "./analytics";
 import { getSvg } from "./IconArt";
 import type { IconRecord } from "./registry";
 export async function copyText(text: string) {
@@ -26,6 +27,13 @@ export function downloadSvg(icon: IconRecord, color: string, size: number) {
   link.download = `${icon.name}.svg`;
   document.body.append(link);
   link.click();
+  trackEvent("download_svg", {
+    icon_name: icon.name,
+    icon_category: icon.category,
+    icon_size: size,
+    icon_color: color,
+    available_in_package: icon.availableInPackage,
+  });
   link.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
