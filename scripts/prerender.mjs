@@ -59,7 +59,7 @@ Software: MIT. Artwork: intended CC0 subject to rights confirmation. Review ${co
 - [Library repository](${config.repositoryUrl})
 - [React documentation](${config.repositoryUrl}/blob/main/packages/react/README.md)
 - [Contributing](${config.repositoryUrl}/blob/main/CONTRIBUTING.md)
-- [Human Development Fund](https://hdfund.org): website attribution.
+- [Ihsan Labs](https://hdfund.org): website attribution.
 `;
 const compact = `# Muslim Icons
 

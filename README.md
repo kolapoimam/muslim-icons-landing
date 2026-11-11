@@ -25,7 +25,7 @@ The published npm package is `@muslim-icons/react@0.2.1`, which currently export
 
 ## UI and accessibility
 
-Search combines with categories and supports aliases such as salah, tasbih and fanous. `/` focuses search. The detail dialog supports Escape, focus trapping, focus restoration and scroll locking. Size, color, canvas and density controls are live; downloads preserve the chosen size/color. Hover outlines preserve the icon's canvas, color, size and opacity. The single footer row places the Human Development Fund attribution between the brand and links.
+Search combines with categories and supports aliases such as salah, tasbih and fanous. `/` focuses search. The detail dialog supports Escape, focus trapping, focus restoration and scroll locking. Size, color, canvas and density controls are live; downloads preserve the chosen size/color. Hover outlines preserve the icon's canvas, color, size and opacity. The single footer row places the Ihsan Labs attribution between the brand and links.
 
 ## Search and machine-readable discovery
 
@@ -44,3 +44,7 @@ Software: MIT. Preserve the source project's notices in `vendor/muslim-icons/`. 
 ## Validation limits
 
 Automated tests cover search, aliases, filters, previews, dialogs, focus, clipboard calls/failures, downloads and hydration. Source fidelity and npm availability are checked against the pinned snapshot. CI tests and builds on Node 22. Live HTTP checks verify production assets and discovery references. Visual browser QA still requires a browser-enabled environment; no screenshot verification is implied.
+
+## Analytics
+
+Google Tag Manager container `GTM-NGWM555W` is installed with its existing GA4 destination `G-93BBGVF37L`. Custom events cover discovery, previews, copying, downloads, links and engagement. The application preserves the container's automatic page views instead of loading a duplicate Google tag. See [analytics events and verification](docs/analytics.md) for the event schema, payload boundaries and GA4 reporting setup.
