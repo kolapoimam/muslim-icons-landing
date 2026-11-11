@@ -25,7 +25,7 @@ function Mark() {
 }
 function Brand() {
   return (
-    <a href="#home" className="brand">
+    <a target="_blank" rel="noopener noreferrer" href="#home" className="brand">
       <Mark />
       muslim<span>icons</span>
     </a>
@@ -97,12 +97,26 @@ function Navbar() {
           className={open ? "nav open" : "nav"}
           onClick={() => setOpen(false)}
         >
-          <a className="nav-active" href="#icons">
+          <a
+            target="_blank"
+            rel="noopener noreferrer"
+            className="nav-active"
+            href="#icons"
+          >
             Icons
           </a>
-          <a href="#documentation">Documentation</a>
-          <a href="#contribute">Contribute</a>
-          <a className="github-link" href={repo}>
+          <a target="_blank" rel="noopener noreferrer" href="#documentation">
+            Documentation
+          </a>
+          <a target="_blank" rel="noopener noreferrer" href="#contribute">
+            Contribute
+          </a>
+          <a
+            target="_blank"
+            rel="noopener noreferrer"
+            className="github-link"
+            href={repo}
+          >
             GitHub <Arrow />
           </a>
         </nav>
@@ -140,10 +154,20 @@ function Hero() {
           everyone.
         </p>
         <div className="hero-actions">
-          <a className="button primary" href="#icons">
+          <a
+            target="_blank"
+            rel="noopener noreferrer"
+            className="button primary"
+            href="#icons"
+          >
             Explore the icons <span aria-hidden="true">↓</span>
           </a>
-          <a className="text-link npm-cta" href={config.packageUrl}>
+          <a
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-link npm-cta"
+            href={config.packageUrl}
+          >
             Get the React package <Arrow />
           </a>
         </div>
@@ -364,7 +388,11 @@ function DetailPanel({
           {error && <p role="alert">{error}</p>}
           <p className="fine-print">
             Review the{" "}
-            <a href={`${repo}/blob/main/packages/svg/LICENSE`}>
+            <a
+              target="_blank"
+              rel="noopener noreferrer"
+              href={`${repo}/blob/main/packages/svg/LICENSE`}
+            >
               artwork licensing notes
             </a>{" "}
             before production use.
@@ -489,7 +517,11 @@ function Explorer() {
               A growing collection.
               <br />A shared purpose.
             </p>
-            <a href={`${repo}/issues`}>
+            <a
+              target="_blank"
+              rel="noopener noreferrer"
+              href={`${repo}/issues`}
+            >
               Suggest an icon <Arrow />
             </a>
           </div>
@@ -639,10 +671,17 @@ function BelowExplorer() {
             A familiar React API. Size, color and standard SVG props. No extra
             moving parts.
           </p>
-          <a className="button primary package-cta" href={config.packageUrl}>
+          <a
+            target="_blank"
+            rel="noopener noreferrer"
+            className="button primary package-cta"
+            href={config.packageUrl}
+          >
             View package on npm <Arrow />
           </a>
           <a
+            target="_blank"
+            rel="noopener noreferrer"
             className="text-link"
             href={`${repo}/blob/main/packages/react/README.md`}
           >
@@ -700,10 +739,20 @@ function BelowExplorer() {
           </p>
         </div>
         <div>
-          <a className="button primary" href={repo}>
+          <a
+            target="_blank"
+            rel="noopener noreferrer"
+            className="button primary"
+            href={repo}
+          >
             Contribute on GitHub <Arrow />
           </a>
-          <a className="text-link" href={`${repo}/blob/main/CONTRIBUTING.md`}>
+          <a
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-link"
+            href={`${repo}/blob/main/CONTRIBUTING.md`}
+          >
             View contribution guidelines <span aria-hidden="true">→</span>
           </a>
         </div>
@@ -721,18 +770,34 @@ function Footer() {
         </div>
         <div className="footer-credit">
           <span>Powered by</span>
-          <a href="https://hdfund.org">
+          <a
+            target="_blank"
+            rel="noopener noreferrer"
+            href="https://hdfund.org"
+          >
             Human Development Fund <Arrow />
           </a>
         </div>
         <nav aria-label="Footer">
-          <a href="#icons">Icons</a>
-          <a href="#documentation">Documentation</a>
-          <a href={repo}>
+          <a target="_blank" rel="noopener noreferrer" href="#icons">
+            Icons
+          </a>
+          <a target="_blank" rel="noopener noreferrer" href="#documentation">
+            Documentation
+          </a>
+          <a target="_blank" rel="noopener noreferrer" href={repo}>
             GitHub <Arrow />
           </a>
-          <a href="#contribute">Contribute</a>
-          <a href={`${repo}/blob/main/LICENSE`}>Licence</a>
+          <a target="_blank" rel="noopener noreferrer" href="#contribute">
+            Contribute
+          </a>
+          <a
+            target="_blank"
+            rel="noopener noreferrer"
+            href={`${repo}/blob/main/LICENSE`}
+          >
+            Licence
+          </a>
         </nav>
       </div>
     </footer>
@@ -741,9 +806,18 @@ function Footer() {
 export default function App() {
   return (
     <>
-      <a className="skip-link" href="#icons">
+      <button
+        className="skip-link"
+        type="button"
+        onClick={() => {
+          document.getElementById("icons")?.scrollIntoView();
+          document
+            .querySelector<HTMLInputElement>('input[aria-label="Search icons"]')
+            ?.focus({ preventScroll: true });
+        }}
+      >
         Skip to icon explorer
-      </a>
+      </button>
       <Navbar />
       <main>
         <Hero />
