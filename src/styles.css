@@ -1,10 +1,19 @@
 @import "tailwindcss";
+@font-face {
+  font-family: "Inter Variable";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("@fontsource-variable/inter/files/inter-latin-wght-normal.woff2")
+    format("woff2");
+}
 @theme {
   --color-ink: #252e29;
   --color-accent: #28604c;
 }
 :root {
-  font-family: Inter, Geist, "Segoe UI", Arial, sans-serif;
+  font-family: "Inter Variable", Inter, ui-sans-serif, system-ui, sans-serif;
+  font-optical-sizing: auto;
   color: #252e29;
   background: #fafbf7;
   font-synthesis: none;
@@ -1474,4 +1483,104 @@ footer {
 }
 .technical-name {
   color: #69736c;
+}
+
+/* Explorer typography stays compact while labels remain legible. */
+.icon-name {
+  font-size: 11px;
+  line-height: 1.45;
+  letter-spacing: -0.1px;
+}
+.icon-card {
+  gap: 12px;
+  padding-bottom: 20px;
+}
+.art-status {
+  font-size: 8px;
+  bottom: 6px;
+  opacity: 0.7;
+}
+.category {
+  font-size: 12px;
+  min-height: 44px;
+}
+.category-count,
+.results-meta,
+.results-meta > span:last-child {
+  font-size: 10px;
+}
+.preview-controls,
+.background-control select {
+  font-size: 11px;
+}
+.hero-copy > p {
+  font-size: 15px;
+}
+.hero-display {
+  transform: none;
+}
+.hero-icons > div {
+  transition: background 0.15s;
+}
+.hero-icons > div:hover {
+  background: #e5ecdf;
+}
+.footer-credit {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  border-top: 1px solid var(--line);
+  padding: 20px 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+.footer-credit a {
+  display: inline-flex;
+  gap: 12px;
+  align-items: center;
+  color: var(--green);
+  font-weight: 550;
+}
+.footer-credit a:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+@media (max-width: 800px) {
+  .category {
+    font-size: 11px;
+  }
+}
+@media (max-width: 600px) {
+  .hero-copy > p {
+    font-size: 14px;
+  }
+  .hero h1 {
+    font-size: clamp(54px, 11vw, 66px);
+  }
+  .hero-meta {
+    gap: 8px;
+  }
+  .hero-meta span + span:before {
+    margin-right: 8px;
+  }
+  .icon-name {
+    font-size: 11px;
+  }
+  .icon-grid.compact .icon-name {
+    font-size: 10px;
+  }
+  .category {
+    min-height: 44px;
+  }
+  .color-controls {
+    gap: 6px;
+  }
+  .footer-credit {
+    font-size: 11px;
+    flex-wrap: wrap;
+  }
+  .footer-credit a {
+    min-height: 36px;
+  }
 }

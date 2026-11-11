@@ -13,7 +13,7 @@ npm test
 npm run build
 ```
 
-`dist/` is the static production build. No backend, authentication, remote API or published npm package is required to run the site. No deployment workflow is configured.
+`dist/` is the static production build. No backend, authentication, remote API or published npm package is required to run the site. Vercel auto-deploys the connected production branch. `vercel.json` pins Vite, `npm ci`, the build command and `dist/` output; `package.json` selects Node 22. No environment variables are required.
 
 ## Relationship to the library
 
@@ -53,3 +53,5 @@ Visual desktop/tablet/mobile layout, real OS clipboard integration and browser d
 Software: MIT, following the original project; see `LICENSE` and `vendor/muslim-icons/LICENSE`.
 
 Existing artwork: preserve `vendor/muslim-icons/packages/svg/LICENSE`. The source repository describes intended CC0 1.0 artwork licensing subject to contributor rights confirmation. New placeholder studies are preview assets pending final design and rights review. Do not treat the collection as cleared final artwork.
+
+Typography uses a self-hosted Inter variable font with `font-display: swap`; no third-party font service is required. Its SIL Open Font License is included at `public/fonts/inter-OFL.txt`.
