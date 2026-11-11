@@ -51,7 +51,7 @@ Google Tag Manager container `GTM-NGWM555W` is installed with its existing GA4 d
 
 ## Explorer toolbar
 
-The sticky toolbar provides four outline weights (Thin, Light, Regular and Bold), 16–96px previews, a hex/color-picker field, canvas selection, complete reset, shareable view links, a filtered random-icon preview and grid density. Horizontal categories combine with npm/SVG-source availability and collection/name sorting. Availability-aware category counts reflect the selected release filter.
+The sticky toolbar provides four outline weights (Thin, Light, Regular and Bold), 16–96px previews, a hex/color-picker field with immediate paste and one-click hex copying, canvas selection, complete reset, shareable view links, a filtered random-icon preview and grid density. Horizontal categories combine with npm/SVG-source availability and collection/name sorting. Availability-aware category counts reflect the selected release filter.
 
 The canonical artwork remains unchanged. Weight controls set the supported SVG/React `strokeWidth` property; fill and duotone artwork are not supplied by this library. Detail previews, copied JSX/SVG markup and SVG downloads reflect the chosen weight, size and color.
 

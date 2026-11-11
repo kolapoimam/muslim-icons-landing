@@ -160,7 +160,7 @@
 }
 .toolbar-color label {
   position: relative;
-  width: 19px;
+  width: 15px;
   height: 25px;
   display: flex;
   align-items: center;
@@ -545,4 +545,27 @@
     flex-direction: row;
     white-space: nowrap;
   }
+}
+
+.toolbar-color .copy-hex {
+  width: 24px;
+  min-width: 24px;
+  height: 32px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: inherit;
+  border-radius: 3px;
+}
+.toolbar-color .copy-hex svg {
+  width: 15px;
+  height: 15px;
+}
+.toolbar-color .copy-hex:hover {
+  box-shadow: inset 0 0 0 1px currentColor;
+}
+.toolbar-color .copy-hex:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
 }

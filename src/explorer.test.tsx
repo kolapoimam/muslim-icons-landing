@@ -198,6 +198,49 @@ describe("explorer controls and accordion", () => {
     ).toBeTruthy();
     expect(within(dialog).getByText(/strokeWidth=\{3\}/)).toBeTruthy();
   });
+  it("applies pasted hex colors immediately and copies the current hex value", async () => {
+    const u = userEvent.setup();
+    render(<App />);
+    const hex = screen.getByRole("textbox", {
+      name: "Hex color",
+    }) as HTMLInputElement;
+    await u.click(hex);
+    await u.paste("ff6600");
+    expect(hex.value).toBe("#FF6600");
+    expect(
+      (document.querySelector(".icon-card") as HTMLElement).style.color,
+    ).toBe("rgb(255, 102, 0)");
+    await u.paste("#abc");
+    expect(hex.value).toBe("#AABBCC");
+    await u.paste("color: #16a34a;");
+    expect(hex.value).toBe("#16A34A");
+    const copy = vi.spyOn(navigator.clipboard, "writeText").mockResolvedValue();
+    await u.click(screen.getByRole("button", { name: "Copy hex color" }));
+    expect(copy).toHaveBeenLastCalledWith("#16A34A");
+    expect(screen.getByText("Hex code copied")).toBeTruthy();
+  });
+  it("applies a complete typed hex before blur and selects it if clipboard access fails", async () => {
+    const u = userEvent.setup();
+    render(<App />);
+    const hex = screen.getByRole("textbox", {
+      name: "Hex color",
+    }) as HTMLInputElement;
+    await u.clear(hex);
+    await u.type(hex, "abc123");
+    expect(document.activeElement).toBe(hex);
+    expect(hex.value).toBe("#ABC123");
+    expect(
+      (document.querySelector(".icon-card") as HTMLElement).style.color,
+    ).toBe("rgb(171, 193, 35)");
+    vi.spyOn(navigator.clipboard, "writeText").mockRejectedValue(
+      new Error("blocked"),
+    );
+    await u.click(screen.getByRole("button", { name: "Copy hex color" }));
+    expect(screen.getByText("Select and copy the hex code.")).toBeTruthy();
+    expect(document.activeElement).toBe(hex);
+    expect(hex.selectionStart).toBe(0);
+    expect(hex.selectionEnd).toBe(7);
+  });
   it("validates URL values and emits a single correct SVG stroke attribute without changing paths", () => {
     expect(
       readSettings("?mi_weight=fill&mi_size=9999&mi_color=invalid"),
