@@ -29,7 +29,7 @@ The site loads Google Tag Manager container **GTM-NGWM555W** once, asynchronousl
 | `section_view`           | A section heading becomes at least 50% visible, once per page | `section_id`                                                                                  |
 | `navigation_menu_toggle` | Mobile menu opens/closes                                      | `menu_state`                                                                                  |
 
-`link_type` distinguishes npm, GitHub, documentation, contribution, attribution, licence and internal navigation. `code_format` distinguishes React imports, JSX, SVG markup, install commands and React examples. `context` distinguishes grid and detail controls. Continuous size/color changes are debounced by 500 ms. Empty searches and initial control values do not create change events.
+`link_type` distinguishes npm, GitHub, documentation, contribution, attribution, licence and internal navigation. `code_format` distinguishes React imports, JSX, SVG markup, install commands, React examples and hex colors. `context` distinguishes grid and detail controls. Continuous size/color changes are debounced by 500 ms. Empty searches and initial control values do not create change events.
 
 The download event records creation of the browser download action, not confirmation that a file was saved to disk. Section visibility uses headings so a tall 104-icon grid can still register an impression. Event listeners and observers are cleaned up on unmount; React Strict Mode does not double-count library readiness or bind duplicate listeners.
 

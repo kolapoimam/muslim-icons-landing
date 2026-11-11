@@ -13,9 +13,15 @@ import {
 function ToolIcon({
   name,
 }: {
-  name: "reset" | "share" | "random" | "grid" | "canvas" | "search";
+  name: "reset" | "share" | "random" | "grid" | "canvas" | "search" | "copy";
 }) {
   const paths = {
+    copy: (
+      <>
+        <rect x="8" y="8" width="12" height="12" rx="2" />
+        <path d="M15 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h3" />
+      </>
+    ),
     reset: (
       <>
         <path d="M4 10a8 8 0 1 1 1 8M4 4v6h6" />
@@ -129,6 +135,7 @@ export function ExplorerToolbar({
   resetToken: number;
 }) {
   const [draft, setDraft] = useState(settings.color);
+  const colorField = useRef<HTMLInputElement>(null);
   const [colorError, setColorError] = useState("");
   const [shareMessage, setShareMessage] = useState("");
   const [fallback, setFallback] = useState("");
@@ -153,6 +160,29 @@ export function ExplorerToolbar({
       setColorError("");
     } else {
       setColorError("Enter a 3- or 6-digit hex color.");
+    }
+  };
+  const copyColor = async () => {
+    const color = normalizeHex(draft) || settings.color;
+    if (color !== settings.color) onChange({ color });
+    setDraft(color);
+    setColorError("");
+    setFallback("");
+    try {
+      await copyText(color.toUpperCase());
+      setShareMessage("Hex code copied");
+      trackEvent("copy_code", { code_format: "hex_color", context: "grid" });
+      clearTimeout(messageTimer.current);
+      messageTimer.current = setTimeout(() => setShareMessage(""), 2200);
+    } catch {
+      setShareMessage("Select and copy the hex code.");
+      colorField.current?.focus();
+      colorField.current?.select();
+      trackEvent("copy_code_failed", {
+        code_format: "hex_color",
+        context: "grid",
+        failure_reason: "clipboard_unavailable",
+      });
     }
   };
   const copyView = async () => {
@@ -243,15 +273,41 @@ export function ExplorerToolbar({
           <span aria-hidden="true" />
         </label>
         <input
+          ref={colorField}
           type="text"
           aria-label="Hex color"
+          title="Paste a hex color, with or without #"
+          autoComplete="off"
+          autoCapitalize="off"
           aria-invalid={Boolean(colorError)}
           spellCheck={false}
           value={draft.toUpperCase()}
           maxLength={7}
+          onFocus={(event) => event.currentTarget.select()}
+          onPaste={(event) => {
+            const pasted = event.clipboardData.getData("text");
+            const css = pasted
+              .trim()
+              .match(
+                /^(?:color|stroke|fill|background(?:-color)?)\s*:\s*(#[a-f\d]{3}(?:[a-f\d]{3})?)\s*;?$/i,
+              );
+            const color =
+              normalizeHex(pasted) || (css ? normalizeHex(css[1]) : null);
+            if (color) {
+              event.preventDefault();
+              onChange({ color });
+              setDraft(color);
+              setColorError("");
+            }
+          }}
           onChange={(event) => {
-            setDraft(event.target.value);
+            const value = event.target.value;
+            setDraft(value);
             setColorError("");
+            if (/^#?[a-f\d]{6}$/i.test(value)) {
+              const color = normalizeHex(value)!;
+              onChange({ color });
+            }
           }}
           onBlur={commitColor}
           onKeyDown={(event) => {
@@ -265,6 +321,16 @@ export function ExplorerToolbar({
             }
           }}
         />
+        <button
+          type="button"
+          className="copy-hex"
+          aria-label="Copy hex color"
+          title="Copy hex color"
+          disabled={!normalizeHex(draft)}
+          onClick={copyColor}
+        >
+          <ToolIcon name="copy" />
+        </button>
       </div>
       <div className="toolbar-actions">
         <label className="toolbar-canvas" title="Canvas color">
